@@ -46,6 +46,10 @@ import           System.Process.Run              (cwd, proc)
 import           System.Process.Text             (readCreateProcessWithExitCode)
 import           Text.Read                       (readMaybe)
 
+#if MIN_VERSION_fourmolu(0,16,0)
+import qualified Data.Yaml                       as Yaml
+#endif
+
 descriptor :: Recorder (WithPriority LogEvent) -> PluginId -> PluginDescriptor IdeState
 descriptor recorder plId =
     (defaultPluginDescriptor plId desc)
@@ -153,8 +157,8 @@ loadConfig recorder fp = do
             pure emptyConfig
         Right file -> do
             logWith recorder Info $ ConfigPath file
-            Yaml.decodeFileEither file >>= \case
-                Left e -> do
+            liftIO (Yaml.decodeFileEither file) >>= \case
+                Left err -> do
                     let errorMessage = "Failed to load " <> T.pack file <> ": " <> T.pack (show err)
                     lift $ pluginSendNotification SMethod_WindowShowMessage $
                         ShowMessageParams
