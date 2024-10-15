@@ -41,6 +41,9 @@ import           Stan.Core.Id                   (Id (..))
 import           Stan.Inspection                (Inspection (..))
 import           Stan.Inspection.All            (inspectionsIds, inspectionsMap)
 import           Stan.Observation               (Observation (..))
+import           Stan                        (createCabalExtensionsMap,
+                                              getStanConfig,removeOffchain)
+import Debug.Trace (traceShow, trace, traceShowM)
 
 descriptor :: Recorder (WithPriority Log) -> PluginId -> PluginDescriptor IdeState
 descriptor recorder plId = (defaultPluginDescriptor plId)
@@ -77,7 +80,8 @@ rules recorder plId = do
             Just hie -> do
               let enabledInspections = HM.fromList [(LSP.fromNormalizedFilePath file, inspectionsIds)]
               -- This should use Cabal config for extensions and Stan config for inspection preferences is the future
-              let analysis = runAnalysis Map.empty enabledInspections [] [hie]
+              let analysis' = runAnalysis Map.empty enabledInspections [] [hie]
+              analysis <- liftIO $ removeOffchain [hie] analysis'
               return (analysisToDiagnostics file analysis, Just ())
       else return ([], Nothing)
 
