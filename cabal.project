@@ -6,8 +6,11 @@ packages:
          ./hls-plugin-api
          ./hls-test-utils
 
-
-index-state: 2025-08-08T12:31:54Z
+-- See CONTRIBUTING for some Nix commands you will need to run if you
+-- update either of these.
+index-state:
+  -- Bump both the following dates if you need newer packages from Hackage
+  , hackage.haskell.org 2025-08-08T12:31:54Z
 
 tests: True
 test-show-details: direct
@@ -25,6 +28,15 @@ test-options: -j1
 -- haddock shown on hover
 package *
   ghc-options: -haddock
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/plu-stan
+  --branch: chore/without-custom-extension
+  tag: abd9ab83a56cdafdbba547d693337ce07004e913
+
+
+
 
 constraints:
   -- C++ is hard to distribute, especially on older GHCs

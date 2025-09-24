@@ -23,7 +23,7 @@ import           Ide.Types                   (PluginDescriptor (..), PluginId,
                                               defaultPluginDescriptor)
 import qualified Language.LSP.Protocol.Types as LSP
 import           Stan                        (createCabalExtensionsMap,
-                                              getStanConfig)
+                                              getStanConfig,removeOffchain)
 import           Stan.Analysis               (Analysis (..), runAnalysis)
 import           Stan.Category               (Category (..))
 import           Stan.Cli                    (StanArgs (..))
@@ -157,7 +157,8 @@ rules recorder plId = do
 
               -- A Map from *relative* file paths (just one, in this case) to language extension info:
               cabalExtensionsMap <- liftIO $ createCabalExtensionsMap isLoud (stanArgsCabalFilePath stanArgs) [hieRelative]
-              let analysis = runAnalysis cabalExtensionsMap checksMap ignoredObservations [hieRelative]
+              let analysis' = runAnalysis cabalExtensionsMap checksMap ignoredObservations [hieRelative]
+              analysis <- liftIO $ removeOffchain [hieRelative] analysis'
               return (analysisToDiagnostics file analysis, Just ())
       else return ([], Nothing)
 
